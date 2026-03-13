@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>openpane</title>
+    <meta name="description" content="Open terminal grids across one display or every display.">
+    <style>
+      :root {
+        --bg: #07111a;
+        --bg-soft: #0d1b27;
+        --panel: rgba(12, 25, 38, 0.82);
+        --panel-strong: rgba(7, 17, 26, 0.92);
+        --line: rgba(162, 208, 255, 0.18);
+        --text: #e8f3ff;
+        --muted: #98afc6;
+        --accent: #7df9c6;
+        --accent-2: #ffb86c;
+        --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(125, 249, 198, 0.22), transparent 26%),
+          radial-gradient(circle at top right, rgba(255, 184, 108, 0.16), transparent 32%),
+          linear-gradient(180deg, #0a1622 0%, #07111a 54%, #050c12 100%);
+        min-height: 100vh;
+      }
+
+      .shell-grid {
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 88%);
+        pointer-events: none;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 72px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(17, 35, 52, 0.9), rgba(7, 17, 26, 0.92));
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -120px -120px auto;
+        width: 280px;
+        height: 280px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(125, 249, 198, 0.25), transparent 70%);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        gap: 8px;
+        padding: 8px 12px;
+        border: 1px solid rgba(125, 249, 198, 0.24);
+        border-radius: 999px;
+        background: rgba(125, 249, 198, 0.08);
+        color: var(--accent);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 10px;
+        font-size: clamp(48px, 9vw, 106px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(18px, 2vw, 22px);
+        line-height: 1.5;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--accent), #99ffe3);
+        color: #082118;
+      }
+
+      .button.secondary {
+        background: rgba(255,255,255,0.04);
+        border-color: var(--line);
+      }
+
+      .terminal-preview {
+        margin-top: 28px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--panel-strong);
+        overflow: hidden;
+      }
+
+      .terminal-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255,255,255,0.03);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .dot.red { background: #ff6b6b; }
+      .dot.yellow { background: #ffd166; }
+      .dot.green { background: #7df9c6; }
+
+      .terminal-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .pane {
+        min-height: 132px;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(125, 249, 198, 0.14);
+        background: linear-gradient(180deg, rgba(16, 34, 49, 0.92), rgba(10, 21, 31, 0.95));
+      }
+
+      .pane:nth-child(2n) {
+        border-color: rgba(255, 184, 108, 0.14);
+      }
+
+      .pane .title {
+        color: var(--accent);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .pane code,
+      pre,
+      .install-card code,
+      .example-card code {
+        font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      }
+
+      .pane pre {
+        margin: 10px 0 0;
+        white-space: pre-wrap;
+        color: #d4e7fb;
+        line-height: 1.55;
+      }
+
+      section {
+        margin-top: 22px;
+      }
+
+      .section-heading {
+        margin: 0 0 14px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent-2);
+      }
+
+      .install-grid,
+      .example-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .example-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .install-card,
+      .example-card,
+      .feature-strip {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .install-card h3,
+      .example-card h3 {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+
+      .install-card p,
+      .example-card p,
+      .feature-strip p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(5, 12, 18, 0.95);
+      }
+
+      .feature-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .feature-strip strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      footer {
+        margin-top: 24px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 920px) {
+        .install-grid,
+        .feature-strip,
+        .example-grid,
+        .terminal-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 20px, 100%);
+          padding-top: 18px;
+        }
+
+        .hero,
+        .install-card,
+        .example-card,
+        .feature-strip {
+          border-radius: 18px;
+          padding: 16px;
+        }
+
+        .install-grid,
+        .feature-strip,
+        .example-grid,
+        .terminal-grid {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 56px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell-grid"></div>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Cross-platform terminal tiling</div>
+        <h1>openpane</h1>
+        <p class="lead">Open terminal grids across one display or every display with a single command. Great for Claude, OpenCode, shells, workers, logs, and parallel sessions.</p>
+        <div class="cta-row">
+          <a class="button primary" href="https://www.npmjs.com/package/openpane">npm package</a>
+          <a class="button secondary" href="https://github.com/made-by-chris/openpane">GitHub repo</a>
+        </div>
+
+        <div class="terminal-preview">
+          <div class="terminal-top">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="terminal-grid">
+            <div class="pane"><div class="title">pane 01</div><pre>$ openpane 4 2 claude</pre></div>
+            <div class="pane"><div class="title">pane 02</div><pre>$ claude
+            <div class="pane"><div class="title">pane 03</div><pre>$ opencode
+            <div class="pane"><div class="title">pane 04</div><pre>$ tail -f app.log</pre></div>
+            <div class="pane"><div class="title">pane 05</div><pre>$ pytest -k api</pre></div>
+            <div class="pane"><div class="title">pane 06</div><pre>$ npm run dev</pre></div>
+            <div class="pane"><div class="title">pane 07</div><pre>$ htop</pre></div>
+            <div class="pane"><div class="title">pane 08</div><pre>$ zsh</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-heading">Install</h2>
+        <div class="install-grid">
+          <article class="install-card">
+            <h3>Windows</h3>
+            <p>Install globally with npm, then launch your grid from PowerShell, Command Prompt, or Windows Terminal.</p>
+            <pre><code>npm install -g openpane
+openpane 2 2 claude</code></pre>
+          </article>
+          <article class="install-card">
+            <h3>macOS</h3>
+            <p>Install once, then use `openpane` from Terminal.app. Great for side-by-side agent runs.</p>
+            <pre><code>npm install -g openpane
+openpane 2 2 claude</code></pre>
+          </article>
+          <article class="install-card">
+            <h3>Linux</h3>
+            <p>Install globally with npm. `openpane` uses your window manager plus common terminal tools to tile the windows.</p>
+            <pre><code>npm install -g openpane
+openpane 2 2 claude</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="feature-strip">
+          <div>
+            <strong>Exact grids</strong>
+            <p>`4 2` means four across, two down. No guessing, no near-square approximation.</p>
+          </div>
+          <div>
+            <strong>All displays</strong>
+            <p>Add `*` to repeat the full layout on every screen you have connected.</p>
+          </div>
+          <div>
+            <strong>Interactive by default</strong>
+            <p>Skip the command and `openpane` just opens terminals in the right places.</p>
+          </div>
+          <div>
+            <strong>CLI-friendly</strong>
+            <p>Works well with Claude, OpenCode, logs, shells, dev servers, and other repeatable commands.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-heading">Examples</h2>
+        <div class="example-grid">
+          <article class="example-card">
+            <h3>Run Claude everywhere</h3>
+            <p>Open eight Claude sessions in a 4-by-2 grid on the current display.</p>
+            <pre><code>openpane 4 2 claude</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Empty planning board</h3>
+            <p>Open a 3-by-3 grid of blank terminals and decide what goes where after launch.</p>
+            <pre><code>openpane 3 3</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Vertical stack</h3>
+            <p>Open two vertically stacked panes on the active display.</p>
+            <pre><code>openpane 1 2</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Horizontal OpenCode strip</h3>
+            <p>Open three terminals side by side, each running OpenCode.</p>
+            <pre><code>openpane 3 1 opencode</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>All displays</h3>
+            <p>Repeat a 2-by-1 layout on every connected display.</p>
+            <pre><code>openpane 2 1 * claude</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>No install</h3>
+            <p>If you already have Node.js, run it directly from npm without installing globally.</p>
+            <pre><code>npx openpane 2 2 claude</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <footer>Built for people who want their terminal layout to snap into place instantly.</footer>
+    </main>
+  </body>
+</html>
