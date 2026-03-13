@@ -1,5 +1,9 @@
 # openpane
 
+<p>
+  <img src="./assets/openpane-logo.svg" alt="openpane logo" width="120" />
+</p>
+
 Open a clean grid of terminal windows on the current display or every display, then run the same command in each one.
 
 Homepage: <https://made-by-chris.github.io/openpane/>
