@@ -1,6 +1,6 @@
 [package]
 name = "openpane"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 description = "Open exact terminal grids across one display or every display."
 license = "MIT"
