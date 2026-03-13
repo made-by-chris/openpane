@@ -6,7 +6,7 @@ Homepage: <https://made-by-chris.github.io/openpane/>
 
 ## Install
 
-These installers use GitHub Releases, not npm. `openpane` still needs `node` on your machine right now.
+These installers use GitHub Releases and native binaries. No npm. No Node runtime.
 
 ### Windows
 
@@ -50,11 +50,17 @@ openpane <x-axis cells> <y-axis cells> [*] [command...]
 ## Local development
 
 ```bash
-npx . 2 2 claude
+cargo run -- 2 2 claude
 ```
 
 ## Release install behavior
 
-- Unix installs to `~/.local/share/openpane/<version>` and writes shims to `~/.local/bin`
-- Windows installs to `%LOCALAPPDATA%\openpane\<version>` and writes shims to `%USERPROFILE%\.openpane\bin`
+- Unix installs the native binary to `~/.local/share/openpane/<version>` and writes shims to `~/.local/bin`
+- Windows installs the native binary to `%LOCALAPPDATA%\openpane\<version>` and writes shims to `%USERPROFILE%\.openpane\bin`
 - The installers pull the latest GitHub release by default
+
+## Build from source
+
+```bash
+cargo build --release
+```

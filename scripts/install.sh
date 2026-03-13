@@ -16,7 +16,6 @@ need_cmd() {
 
 need_cmd curl
 need_cmd tar
-need_cmd node
 
 VERSION="${OPENPANE_VERSION:-}"
 
@@ -29,7 +28,30 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-ARCHIVE_URL="https://github.com/$REPO/archive/refs/tags/v$VERSION.tar.gz"
+OS="$(uname -s)"
+ARCH="$(uname -m)"
+
+case "$OS" in
+  Darwin)
+    case "$ARCH" in
+      arm64|aarch64) ASSET="openpane-aarch64-apple-darwin.tar.gz" ;;
+      x86_64) ASSET="openpane-x86_64-apple-darwin.tar.gz" ;;
+      *) printf 'openpane installer error: unsupported macOS arch: %s\n' "$ARCH" >&2; exit 1 ;;
+    esac
+    ;;
+  Linux)
+    case "$ARCH" in
+      x86_64|amd64) ASSET="openpane-x86_64-unknown-linux-gnu.tar.gz" ;;
+      *) printf 'openpane installer error: unsupported Linux arch: %s\n' "$ARCH" >&2; exit 1 ;;
+    esac
+    ;;
+  *)
+    printf 'openpane installer error: unsupported OS: %s\n' "$OS" >&2
+    exit 1
+    ;;
+esac
+
+ARCHIVE_URL="https://github.com/$REPO/releases/download/v$VERSION/$ASSET"
 TMP_DIR="$(mktemp -d)"
 ARCHIVE_PATH="$TMP_DIR/openpane.tar.gz"
 INSTALL_DIR="$LIB_ROOT/$VERSION"
@@ -47,15 +69,14 @@ curl -fsSL "$ARCHIVE_URL" -o "$ARCHIVE_PATH"
 
 rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
-tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
-cp -R "$TMP_DIR/openpane-$VERSION/." "$INSTALL_DIR/"
+tar -xzf "$ARCHIVE_PATH" -C "$INSTALL_DIR"
 
 create_wrapper() {
   name="$1"
   wrapper_path="$BIN_DIR/$name"
-  cat > "$wrapper_path" <<EOF
+cat > "$wrapper_path" <<EOF
 #!/bin/sh
-exec node "$INSTALL_DIR/bin/grid.js" "\$@"
+exec "$INSTALL_DIR/openpane" "\$@"
 EOF
   chmod +x "$wrapper_path"
 }

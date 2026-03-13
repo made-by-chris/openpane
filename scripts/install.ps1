@@ -4,10 +4,6 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-  throw "Node.js is required. Install Node.js first, then run this installer again."
-}
-
 $repo = "made-by-chris/openpane"
 
 if ($Version -eq "latest") {
@@ -18,7 +14,8 @@ if ($Version -eq "latest") {
   $Version = $release.tag_name.TrimStart("v")
 }
 
-$archiveUrl = "https://github.com/$repo/archive/refs/tags/v$Version.zip"
+$asset = "openpane-x86_64-pc-windows-msvc.zip"
+$archiveUrl = "https://github.com/$repo/releases/download/v$Version/$asset"
 $installRoot = Join-Path $env:LOCALAPPDATA "openpane"
 $versionDir = Join-Path $installRoot $Version
 $binDir = Join-Path $env:USERPROFILE ".openpane\bin"
@@ -37,14 +34,14 @@ try {
     Remove-Item -Recurse -Force $versionDir
   }
 
-  Expand-Archive -LiteralPath $zipPath -DestinationPath $tempDir -Force
-  Move-Item -Force (Join-Path $tempDir "openpane-$Version") $versionDir
+  New-Item -ItemType Directory -Force -Path $versionDir | Out-Null
+  Expand-Archive -LiteralPath $zipPath -DestinationPath $versionDir -Force
 
   foreach ($name in @("openpane", "grid", "codegrid")) {
     $cmdPath = Join-Path $binDir "$name.cmd"
     @(
       "@echo off",
-      "node `"$versionDir\bin\grid.js`" %*"
+      "`"$versionDir\openpane.exe`" %*"
     ) | Set-Content -Path $cmdPath -Encoding ASCII
   }
 }
