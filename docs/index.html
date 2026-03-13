@@ -8,7 +8,6 @@
     <style>
       :root {
         --bg: #07111a;
-        --bg-soft: #0d1b27;
         --panel: rgba(12, 25, 38, 0.82);
         --panel-strong: rgba(7, 17, 26, 0.92);
         --line: rgba(162, 208, 255, 0.18);
@@ -19,9 +18,7 @@
         --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       body {
         margin: 0;
@@ -51,14 +48,21 @@
         padding: 32px 0 72px;
       }
 
+      .hero,
+      .install-card,
+      .example-card,
+      .feature-strip {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
       .hero {
         position: relative;
         overflow: hidden;
         padding: 28px;
-        border: 1px solid var(--line);
-        border-radius: 28px;
         background: linear-gradient(180deg, rgba(17, 35, 52, 0.9), rgba(7, 17, 26, 0.92));
-        box-shadow: var(--shadow);
       }
 
       .hero::after {
@@ -73,7 +77,6 @@
 
       .eyebrow {
         display: inline-flex;
-        gap: 8px;
         padding: 8px 12px;
         border: 1px solid rgba(125, 249, 198, 0.24);
         border-radius: 999px;
@@ -92,7 +95,7 @@
       }
 
       .lead {
-        max-width: 720px;
+        max-width: 760px;
         margin: 0;
         color: var(--muted);
         font-size: clamp(18px, 2vw, 22px);
@@ -139,7 +142,6 @@
 
       .terminal-top {
         display: flex;
-        align-items: center;
         gap: 8px;
         padding: 14px 16px;
         border-bottom: 1px solid var(--line);
@@ -182,10 +184,9 @@
         text-transform: uppercase;
       }
 
-      .pane code,
+      .pane pre,
       pre,
-      .install-card code,
-      .example-card code {
+      code {
         font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       }
 
@@ -196,9 +197,7 @@
         line-height: 1.55;
       }
 
-      section {
-        margin-top: 22px;
-      }
+      section { margin-top: 22px; }
 
       .section-heading {
         margin: 0 0 14px;
@@ -212,21 +211,15 @@
       .example-grid {
         display: grid;
         gap: 16px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .example-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .install-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .example-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .install-card,
       .example-card,
       .feature-strip {
-        border: 1px solid var(--line);
-        border-radius: 22px;
         padding: 20px;
-        background: var(--panel);
-        box-shadow: var(--shadow);
       }
 
       .install-card h3,
@@ -237,7 +230,8 @@
 
       .install-card p,
       .example-card p,
-      .feature-strip p {
+      .feature-strip p,
+      .note {
         margin: 0 0 12px;
         color: var(--muted);
         line-height: 1.55;
@@ -300,9 +294,7 @@
           grid-template-columns: 1fr;
         }
 
-        h1 {
-          font-size: 56px;
-        }
+        h1 { font-size: 56px; }
       }
     </style>
   </head>
@@ -312,9 +304,10 @@
       <section class="hero">
         <div class="eyebrow">Cross-platform terminal tiling</div>
         <h1>openpane</h1>
-        <p class="lead">Open terminal grids across one display or every display with a single command. Great for Claude, OpenCode, shells, workers, logs, and parallel sessions.</p>
+        <p class="lead">Open terminal grids across one display or every display with a single command. Install from GitHub Releases, not npm. Great for Claude, OpenCode, shells, workers, logs, and parallel sessions.</p>
+        <p class="note">Current installers still expect <code>node</code> to already be installed on the machine.</p>
         <div class="cta-row">
-          <a class="button primary" href="https://www.npmjs.com/package/openpane">npm package</a>
+          <a class="button primary" href="https://github.com/made-by-chris/openpane/releases/latest">Latest release</a>
           <a class="button secondary" href="https://github.com/made-by-chris/openpane">GitHub repo</a>
         </div>
 
@@ -327,7 +320,9 @@
           <div class="terminal-grid">
             <div class="pane"><div class="title">pane 01</div><pre>$ openpane 4 2 claude</pre></div>
             <div class="pane"><div class="title">pane 02</div><pre>$ claude
+&gt; ready</pre></div>
             <div class="pane"><div class="title">pane 03</div><pre>$ opencode
+&gt; session</pre></div>
             <div class="pane"><div class="title">pane 04</div><pre>$ tail -f app.log</pre></div>
             <div class="pane"><div class="title">pane 05</div><pre>$ pytest -k api</pre></div>
             <div class="pane"><div class="title">pane 06</div><pre>$ npm run dev</pre></div>
@@ -342,21 +337,18 @@
         <div class="install-grid">
           <article class="install-card">
             <h3>Windows</h3>
-            <p>Install globally with npm, then launch your grid from PowerShell, Command Prompt, or Windows Terminal.</p>
-            <pre><code>npm install -g openpane
-openpane 2 2 claude</code></pre>
+            <p>Pull the PowerShell installer from the repo. It downloads the latest GitHub release and creates `openpane`, `grid`, and `codegrid` shims for your user account.</p>
+            <pre><code>irm https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.ps1 | iex</code></pre>
           </article>
           <article class="install-card">
             <h3>macOS</h3>
-            <p>Install once, then use `openpane` from Terminal.app. Great for side-by-side agent runs.</p>
-            <pre><code>npm install -g openpane
-openpane 2 2 claude</code></pre>
+            <p>Run the shell installer. It downloads the latest GitHub release into your home directory and creates command shims in `~/.local/bin`.</p>
+            <pre><code>curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh</code></pre>
           </article>
           <article class="install-card">
             <h3>Linux</h3>
-            <p>Install globally with npm. `openpane` uses your window manager plus common terminal tools to tile the windows.</p>
-            <pre><code>npm install -g openpane
-openpane 2 2 claude</code></pre>
+            <p>Same installer flow as macOS. It pulls the latest release tarball and installs the command without touching npm.</p>
+            <pre><code>curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh</code></pre>
           </article>
         </div>
       </section>
@@ -365,15 +357,15 @@ openpane 2 2 claude</code></pre>
         <div class="feature-strip">
           <div>
             <strong>Exact grids</strong>
-            <p>`4 2` means four across, two down. No guessing, no near-square approximation.</p>
+            <p><code>4 2</code> means four across, two down. No guessing, no near-square approximation.</p>
           </div>
           <div>
             <strong>All displays</strong>
-            <p>Add `*` to repeat the full layout on every screen you have connected.</p>
+            <p>Add <code>*</code> to repeat the full layout on every screen you have connected.</p>
           </div>
           <div>
             <strong>Interactive by default</strong>
-            <p>Skip the command and `openpane` just opens terminals in the right places.</p>
+            <p>Skip the command and <code>openpane</code> just opens terminals in the right places.</p>
           </div>
           <div>
             <strong>CLI-friendly</strong>
@@ -411,9 +403,9 @@ openpane 2 2 claude</code></pre>
             <pre><code>openpane 2 1 * claude</code></pre>
           </article>
           <article class="example-card">
-            <h3>No install</h3>
-            <p>If you already have Node.js, run it directly from npm without installing globally.</p>
-            <pre><code>npx openpane 2 2 claude</code></pre>
+            <h3>Prompt mode</h3>
+            <p>Launch a repeated print-mode prompt cleanly across the active display.</p>
+            <pre><code>openpane 2 2 "claude -p 'summarize this repo'"</code></pre>
           </article>
         </div>
       </section>

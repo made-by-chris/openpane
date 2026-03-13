@@ -6,31 +6,27 @@ Homepage: <https://made-by-chris.github.io/openpane/>
 
 ## Install
 
+These installers use GitHub Releases, not npm. `openpane` still needs `node` on your machine right now.
+
 ### Windows
 
 ```powershell
-npm install -g openpane
+irm https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.ps1 | iex
 openpane 2 2 claude
 ```
 
 ### macOS
 
 ```bash
-npm install -g openpane
+curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh
 openpane 2 2 claude
 ```
 
 ### Linux
 
 ```bash
-npm install -g openpane
+curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh
 openpane 2 2 claude
-```
-
-You can also run it without installing:
-
-```bash
-npx openpane 2 2 claude
 ```
 
 ## Usage
@@ -56,3 +52,9 @@ openpane <x-axis cells> <y-axis cells> [*] [command...]
 ```bash
 npx . 2 2 claude
 ```
+
+## Release install behavior
+
+- Unix installs to `~/.local/share/openpane/<version>` and writes shims to `~/.local/bin`
+- Windows installs to `%LOCALAPPDATA%\openpane\<version>` and writes shims to `%USERPROFILE%\.openpane\bin`
+- The installers pull the latest GitHub release by default
