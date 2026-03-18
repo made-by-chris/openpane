@@ -227,7 +227,7 @@
         gap: 16px;
       }
 
-      .install-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .install-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .example-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .install-card,
@@ -321,9 +321,9 @@
           <img class="brand-mark" src="./openpane-logo.svg" alt="openpane logo">
           <h1>openpane</h1>
         </div>
-        <p class="lead">Open terminal grids across one display or every display with a single command. Install from GitHub Releases as a native binary. No npm. No Node runtime. Great for Claude, OpenCode, shells, workers, logs, and parallel sessions.</p>
+        <p class="lead">Open terminal grids across one display or every display with a single command. For most people, the easiest way to start is <code>npx openpane</code>: no install ceremony, just run it and let the launcher fetch the matching native binary on first use. Great for Claude, OpenCode, shells, workers, logs, and parallel sessions.</p>
         <div class="cta-row">
-          <a class="button primary" href="https://github.com/made-by-chris/openpane/releases/latest">Latest release</a>
+          <a class="button primary" href="https://www.npmjs.com/package/openpane">Run with npx</a>
           <a class="button secondary" href="https://github.com/made-by-chris/openpane">GitHub repo</a>
         </div>
 
@@ -352,18 +352,23 @@
         <h2 class="section-heading">Install</h2>
         <div class="install-grid">
           <article class="install-card">
+            <h3>Default: NPX</h3>
+            <p>Best for most users. No separate install step. The npm package is a thin launcher that downloads the matching native binary from GitHub Releases on first run.</p>
+            <pre><code>npx openpane 2 2 claude</code></pre>
+          </article>
+          <article class="install-card">
             <h3>Windows</h3>
-            <p>Pull the PowerShell installer from the repo. It downloads the latest GitHub release and creates `openpane`, `grid`, and `codegrid` shims for your user account.</p>
+            <p>Use this if you want a persistent native install with no Node runtime. It downloads the latest GitHub release and creates `openpane`, `grid`, and `codegrid` shims for your user account.</p>
             <pre><code>irm https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.ps1 | iex</code></pre>
           </article>
           <article class="install-card">
             <h3>macOS</h3>
-            <p>Run the shell installer. It downloads the latest GitHub release into your home directory and creates command shims in `~/.local/bin`.</p>
+            <p>Use this if you want a persistent native install with no Node runtime. It downloads the latest GitHub release into your home directory and creates command shims in `~/.local/bin`.</p>
             <pre><code>curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh</code></pre>
           </article>
           <article class="install-card">
             <h3>Linux</h3>
-            <p>Same installer flow as macOS. It pulls the latest release tarball and installs the command without touching npm.</p>
+            <p>Use this if you want a persistent native install with no Node runtime. It pulls the latest release tarball and installs the command without touching npm.</p>
             <pre><code>curl -fsSL https://raw.githubusercontent.com/made-by-chris/openpane/main/scripts/install.sh | sh</code></pre>
           </article>
         </div>

@@ -10,7 +10,19 @@ Homepage: <https://made-by-chris.github.io/openpane/>
 
 ## Install
 
-These installers use GitHub Releases and native binaries. No npm. No Node runtime.
+### NPX (recommended)
+
+For most people, this is the best and lowest-friction way to use `openpane`. Run it directly with no separate install step:
+
+```bash
+npx openpane 2 2 claude
+```
+
+The npm package is a thin launcher that downloads the matching native binary from GitHub Releases on first run.
+
+### Native installers
+
+Use these if you want a persistent native install with no Node runtime.
 
 ### Windows
 
